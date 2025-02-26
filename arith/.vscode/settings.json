@@ -1,0 +1,20 @@
+{
+    "files.associations": {
+        "assert.h": "c",
+        "stdio.h": "c",
+        "a2methods.h": "c",
+        "pnm.h": "c",
+        "except.h": "c",
+        "a2plain.h": "c",
+        "compress40.h": "c",
+        "rgb2cv.h": "c",
+        "arith40.h": "c",
+        "bitpack.h": "c",
+        "stdlib.h": "c",
+        "dct.h": "c"
+    },
+    "C_Cpp.default.includePath": [
+        "/comp/40/build/include",
+        "/usr/sup/cii40/include/cii"
+    ]
+}

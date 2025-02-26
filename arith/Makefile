@@ -31,7 +31,7 @@ LDFLAGS = -g -L/comp/40/build/lib -L/usr/sup/cii40/lib64
 # Both programs need cii40 (Hanson binaries) and *may* need -lm (math)
 # Only brightness requires the binary for pnmrdr.
 # LDLIBS = -lpnmrdr -lnetpbm -lm
-LDLIBS = -l40locality -lnetpbm -lcii40 -lm -lrt
+LDLIBS = -l40locality -lnetpbm -lcii40 -lm -lrt -larith40
 
 
 # Collect all .h files in your directory.
@@ -41,7 +41,7 @@ INCLUDES = $(shell echo *.h)
 
 ############### Rules ###############
 
-all: ppmdiff
+all: ppmdiff 40image
 
 
 ## Compile step (.c files -> .o files)
@@ -56,7 +56,8 @@ all: ppmdiff
 ppmdiff: ppmdiff.o uarray2.o a2plain.o
 	$(CC) $(LDFLAGS) $^ -o $@ $(LDLIBS)
 
-
+40image: 40image.o compress40.o a2plain.o uarray2.o rgb2cv.o dct.o
+	$(CC) $(LDFLAGS) $^ -o $@ $(LDLIBS)
 
 clean:
 	rm -f ppmdiff *.o
