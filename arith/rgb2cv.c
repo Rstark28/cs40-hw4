@@ -1,49 +1,82 @@
-#include "pnm.h"
 #include "assert.h"
 #include "mem.h"
+#include "pnm.h"
 #include "rgb2cv.h"
 
+/********** RGBtoCV ********
+ *
+ * Converts a Pnm_rgb structure to a ComponentVideo structure.
+ *
+ * Parameters:
+ *      Pnm_rgb rgb:       A pointer to the Pnm_rgb structure containing the
+ *                         RGB values.
+ *      int denominator:   The denominator used for scaling the RGB values.
+ *
+ * Return:
+ *      ComponentVideo:    A pointer to the converted ComponentVideo structure.
+ *
+ * Expects:
+ *      The pointer rgb must not be NULL.
+ *
+ * Notes:
+ *      Will CRE if any expectation is violated.
+ ************************/
 ComponentVideo RGBtoCV(Pnm_rgb rgb, int denominator)
 {
-    assert(rgb != NULL);
-    // convert to floats
+        assert(rgb != NULL);
+        assert(denominator > 0);
 
-    float redf = (float)rgb->red;
-    float greenf = (float)rgb->green;
-    float bluef = (float)rgb->blue;
+        ComponentVideo cv;
+        NEW(cv);
 
-    float red = (redf) / denominator;
-    float green = (greenf) / denominator;
-    float blue = (bluef) / denominator;
+        /* Convert RGB values to floats */
+        float red = (float)rgb->red / denominator;
+        float green = (float)rgb->green / denominator;
+        float blue = (float)rgb->blue / denominator;
 
-    ComponentVideo cv;
-    NEW(cv);
+        /* Convert RGB to Component Video */
+        cv->Y = 0.299 * red + 0.587 * green + 0.114 * blue;
+        cv->P_b = -0.168736 * red - 0.331264 * green + 0.5 * blue;
+        cv->P_r = 0.5 * red - 0.418688 * green - 0.081312 * blue;
 
-    /* Convert to component video */
-    cv->y = 0.299 * red + 0.587 * green + 0.114 * blue;
-    cv->pb = -0.168736 * red - 0.331264 * green + 0.5 * blue;
-    cv->pr = 0.5 * red - 0.418688 * green - 0.081312 * blue;
-
-    // printf("y=%f, pb=%f, pr=%f", y, pb, pr);
-
-    return cv;
+        return cv;
 }
 
+/********** CVtoRGB ********
+ *
+ * Converts a ComponentVideo structure to a Pnm_rgb structure.
+ *
+ * Parameters:
+ *      ComponentVideo cv: A pointer to the ComponentVideo structure containing
+ *                         the Y, Pb, and Pr values.
+ *      int denominator:   The denominator used for scaling the RGB values.
+ *
+ * Return:
+ *      Pnm_rgb:          A pointer to the converted Pnm_rgb structure.
+ *
+ * Expects:
+ *      The pointer cv must not be NULL.
+ *
+ * Notes:
+ *      Will CRE if any expectation is violated.
+ ************************/
 Pnm_rgb CVtoRGB(ComponentVideo cv, int denominator)
 {
-    printf("%f\n", cv->y);
-    float red = 1.0 * cv->y + 0.0 * cv->pb + 1.402 * cv->pr;
-    float green = 1.0 * cv->y - 0.344136 * cv->pb - 0.714136 * cv->pr;
-    float blue = 1.0 * cv->y + 1.772 * cv->pb + 0.0 * cv->pr;
+        assert(cv != NULL);
+        assert(denominator > 0);
 
-    printf("%f %f %f\n\n", red, green, blue);
+        Pnm_rgb rgb;
+        NEW(rgb);
 
-    Pnm_rgb rgb;
-    NEW(rgb);
+        /* Convert Component Video to RGB */
+        float red = 1.0 * cv->Y + 0.0 * cv->P_b + 1.402 * cv->P_r;
+        float green = 1.0 * cv->Y - 0.344136 * cv->P_b - 0.714136 * cv->P_r;
+        float blue = 1.0 * cv->Y + 1.772 * cv->P_b + 0.0 * cv->P_r;
 
-    rgb->red = red * denominator;
-    rgb->green = green * denominator;
-    rgb->blue = blue * denominator;
+        /* Scale RGB values to the specified denominator */
+        rgb->red = red * denominator;
+        rgb->green = green * denominator;
+        rgb->blue = blue * denominator;
 
-    return rgb;
+        return rgb;
 }
