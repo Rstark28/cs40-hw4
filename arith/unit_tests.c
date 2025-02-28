@@ -13,6 +13,7 @@
 #include "dct.h"
 #include "stdlib.h"
 #include "mem.h"
+#include "bitpack.h"
 
 /* Helper function to compare floating-point if not exactly equal */
 bool close_f(double a, double b)
@@ -83,6 +84,20 @@ void test_RGBtoCV_and_back()
         FREE(rgb2);
 }
 
+void test_bitpack_fitsu()
+{
+        assert(Bitpack_fitsu(5, 3));
+        assert(Bitpack_fitsu(7, 3));
+        assert(!Bitpack_fitsu(8, 3));
+}
+
+void test_bitpack_fitss()
+{
+        assert(!Bitpack_fitss(5, 3));
+        assert(Bitpack_fitss(-2, 3));
+        assert(Bitpack_fitss(2, 3));
+}
+
 /*****************************************************************
  *                          Main Function
  *****************************************************************/
@@ -94,6 +109,8 @@ int main(int argc, char *argv[])
         test_RGBtoCV();
         test_CVtoRGB();
         test_RGBtoCV_and_back();
+        test_bitpack_fitsu();
+        test_bitpack_fitss();
 
         return 0;
 }

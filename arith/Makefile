@@ -59,7 +59,7 @@ ppmdiff: ppmdiff.o uarray2.o a2plain.o
 40image: 40image.o compress40.o a2plain.o uarray2.o rgb2cv.o dct.o
 	$(CC) $(LDFLAGS) $^ -o $@ $(LDLIBS)
 
-unit_tests: unit_tests.o a2plain.o uarray2.o rgb2cv.o dct.o
+unit_tests: unit_tests.o a2plain.o uarray2.o rgb2cv.o dct.o bitpack.o
 	$(CC) $(LDFLAGS) $^ -o $@ $(LDLIBS)
 
 clean:
