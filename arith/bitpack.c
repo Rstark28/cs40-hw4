@@ -1,18 +1,37 @@
 #include "bitpack.h"
+#include "assert.h"
 
 bool Bitpack_fitsu(uint64_t n, unsigned width)
 {
-    return (n >> width) == 0;
+        return n < (1 << width);
 }
 
 bool Bitpack_fitss(int64_t n, unsigned width)
 {
-    int max_val = 1 << (width - 1);
-
-    return n >= -max_val && n < max_val;
+        return (n >= -(1 << (width - 1))) && (n < (1 << (width - 1)));
 }
 
-uint64_t Bitpack_getu(uint64_t word, unsigned width, unsigned lsb);
-int64_t Bitpack_gets(uint64_t word, unsigned width, unsigned lsb);
+uint64_t Bitpack_getu(uint64_t word, unsigned width, unsigned lsb)
+{
+        assert(width <= 64);
+        assert(width + lsb <= 64);
+        uint64_t mask = (1 << width) - 1;
+        return (word >> lsb) & mask;
+}
+
+int64_t Bitpack_gets(uint64_t word, unsigned width, unsigned lsb)
+{
+        assert(width <= 64);
+        assert(width + lsb <= 64);
+        uint64_t mask = (1 << width) - 1;
+        uint64_t value = (word >> lsb) & mask;
+        /* If signed bit is on, then sign extend */
+        if ((value >> (width - 1)))
+        {
+                value = value | ~mask;
+        }
+        return (int64_t)value;
+}
 uint64_t Bitpack_newu(uint64_t word, unsigned width, unsigned lsb, uint64_t value);
+
 uint64_t Bitpack_news(uint64_t word, unsigned width, unsigned lsb, int64_t value);
