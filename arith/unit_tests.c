@@ -98,6 +98,21 @@ void test_bitpack_fitss()
         assert(Bitpack_fitss(2, 3));
 }
 
+void test_bitpack_getu()
+{
+        assert(Bitpack_getu(0x000000000000000F, 4, 0) == 0xF);
+        assert(Bitpack_getu(0x000000000000000F, 4, 12) == 0x0);
+        assert(Bitpack_getu(0x123456789ABCDEF0, 32, 0) == 0x9ABCDEF0);
+        assert(Bitpack_getu(0x123456789ABCDEF0, 32, 32) == 0x12345678);
+}
+
+void test_bitpack_gets()
+{
+        assert(Bitpack_gets(0x000000000000000F, 4, 0) == -1);
+        assert(Bitpack_gets(0x000000000000000F, 4, 12) == 0x0);
+        assert(Bitpack_gets(0x123456789ABCDEF0, 32, 32) == 0x12345678);
+}
+
 /*****************************************************************
  *                          Main Function
  *****************************************************************/
@@ -111,6 +126,8 @@ int main(int argc, char *argv[])
         test_RGBtoCV_and_back();
         test_bitpack_fitsu();
         test_bitpack_fitss();
+        test_bitpack_getu();
+        test_bitpack_gets();
 
         return 0;
 }
