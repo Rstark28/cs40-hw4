@@ -35,8 +35,8 @@ typedef struct DCT
         float b;
         float c;
         float d;
-        unsigned Pbar_b;
-        unsigned Pbar_r;
+        float Pbar_b;
+        float Pbar_r;
 } *DCT;
 
 /********** ComputeDCT ********

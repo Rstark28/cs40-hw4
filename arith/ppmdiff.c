@@ -200,12 +200,12 @@ void computeDiff(int col,
         float other_denom = (float)other_image->denominator;
 
         /* Compute the differences in the RGB values */
-        float r_diff = (rgb_self->red / self_denom) -
-                       (rgb_other->red / other_denom);
-        float g_diff = (rgb_self->green / self_denom) -
-                       (rgb_other->green / other_denom);
-        float b_diff = (rgb_self->blue / self_denom) -
-                       (rgb_other->blue / other_denom);
+        float r_diff = ((float)rgb_self->red / self_denom) -
+                       ((float)rgb_other->red / other_denom);
+        float g_diff = ((float)rgb_self->green / self_denom) -
+                       ((float)rgb_other->green / other_denom);
+        float b_diff = ((float)rgb_self->blue / self_denom) -
+                       ((float)rgb_other->blue / other_denom);
 
         float diff = (r_diff * r_diff) +
                      (g_diff * g_diff) +

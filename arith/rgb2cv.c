@@ -73,6 +73,31 @@ Pnm_rgb CVtoRGB(ComponentVideo cv, int denominator)
         float green = 1.0 * cv->Y - 0.344136 * cv->P_b - 0.714136 * cv->P_r;
         float blue = 1.0 * cv->Y + 1.772 * cv->P_b + 0.0 * cv->P_r;
 
+        if (red < 0)
+        {
+                red = 0;
+        }
+        else if (red > 1)
+        {
+                red = 1;
+        }
+        if (green < 0)
+        {
+                green = 0;
+        }
+        else if (green > 1)
+        {
+                green = 1;
+        }
+        if (blue < 0)
+        {
+                blue = 0;
+        }
+        else if (blue > 1)
+        {
+                blue = 1;
+        }
+
         /* Scale RGB values to the specified denominator */
         rgb->red = red * denominator;
         rgb->green = green * denominator;

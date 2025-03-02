@@ -11,7 +11,8 @@
         "arith40.h": "c",
         "bitpack.h": "c",
         "stdlib.h": "c",
-        "dct.h": "c"
+        "dct.h": "c",
+        "quantize.h": "c"
     },
     "C_Cpp.default.includePath": [
         "/comp/40/build/include",

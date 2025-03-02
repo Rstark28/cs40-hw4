@@ -4,6 +4,7 @@
 #include <except.h>
 #include <math.h>
 #include <stdbool.h>
+#include <limits.h>
 
 #include "assert.h"
 #include "pnm.h"
@@ -89,6 +90,9 @@ void test_bitpack_fitsu()
         assert(Bitpack_fitsu(5, 3));
         assert(Bitpack_fitsu(7, 3));
         assert(!Bitpack_fitsu(8, 3));
+        assert(Bitpack_fitsu(~0ULL, 64));
+        assert(Bitpack_fitsu(0, 0));
+        assert(!Bitpack_fitsu(1, 0));
 }
 
 void test_bitpack_fitss()
@@ -96,6 +100,8 @@ void test_bitpack_fitss()
         assert(!Bitpack_fitss(5, 3));
         assert(Bitpack_fitss(-2, 3));
         assert(Bitpack_fitss(2, 3));
+        assert(Bitpack_fitss(INT64_MAX, 64));
+        assert(!Bitpack_fitss(0, 0));
 }
 
 void test_bitpack_getu()
@@ -104,6 +110,7 @@ void test_bitpack_getu()
         assert(Bitpack_getu(0x000000000000000F, 4, 12) == 0x0);
         assert(Bitpack_getu(0x123456789ABCDEF0, 32, 0) == 0x9ABCDEF0);
         assert(Bitpack_getu(0x123456789ABCDEF0, 32, 32) == 0x12345678);
+        assert(Bitpack_getu(UINT64_MAX, 64, 0) == UINT64_MAX);
 }
 
 void test_bitpack_gets()
@@ -111,6 +118,46 @@ void test_bitpack_gets()
         assert(Bitpack_gets(0x000000000000000F, 4, 0) == -1);
         assert(Bitpack_gets(0x000000000000000F, 4, 12) == 0x0);
         assert(Bitpack_gets(0x123456789ABCDEF0, 32, 32) == 0x12345678);
+        assert(Bitpack_gets(INT64_MAX, 64, 0) == INT64_MAX);
+}
+
+void test_bitpack_newu()
+{
+        assert(Bitpack_newu(0x3, 2, 2, 3) == 15);
+        assert(Bitpack_newu(0xFF, 4, 4, 0) == 15);
+}
+
+void test_bitpack_news()
+{
+        assert(Bitpack_newu(0x3, 2, 2, 3) == 15);
+        assert(Bitpack_newu(0xFF, 4, 4, 0) == 15);
+}
+
+void test_bitpack_u()
+{
+        uint64_t a = ~0;
+
+        a = Bitpack_newu(a, 4, 4, 13);
+        a = Bitpack_newu(a, 8, 16, 230);
+        a = Bitpack_newu(a, 4, 0, 12);
+
+        assert(Bitpack_getu(a, 4, 4) == 13);
+        assert(Bitpack_getu(a, 8, 16) == 230);
+        assert(Bitpack_getu(a, 4, 0) == 12);
+}
+
+void test_bitpack_s()
+{
+        uint64_t a = 0;
+
+        a = Bitpack_news(a, 4, 4, -3);
+        a = Bitpack_news(a, 8, 16, -6);
+        a = Bitpack_news(a, 4, 0, -7);
+        a = Bitpack_news(a, 8, 24, 100);
+        assert(Bitpack_gets(a, 4, 4) == -3);
+        assert(Bitpack_gets(a, 8, 16) == -6);
+        assert(Bitpack_gets(a, 4, 0) == -7);
+        assert(Bitpack_gets(a, 8, 24) == 100);
 }
 
 /*****************************************************************
@@ -128,6 +175,10 @@ int main(int argc, char *argv[])
         test_bitpack_fitss();
         test_bitpack_getu();
         test_bitpack_gets();
+        test_bitpack_newu();
+        test_bitpack_news();
+        test_bitpack_u();
+        test_bitpack_s();
 
         return 0;
 }
