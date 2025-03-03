@@ -8,7 +8,7 @@
 #include "stdlib.h"
 #include "mem.h"
 #include "quantize.h"
-#include "pack_word.h"
+#include "packword.h"
 #include "bitpack.h"
 
 void compress40(FILE *input)
@@ -22,7 +22,6 @@ void compress40(FILE *input)
         {
                 for (size_t row = 0; row < image->height / 2; row++)
                 {
-
                         CVBlock block;
                         NEW(block);
                         for (size_t i = 0; i < 2; i++)
@@ -31,23 +30,22 @@ void compress40(FILE *input)
                                 {
                                         Pnm_rgb rgb = image->methods->at(image->pixels, col * 2 + i, row * 2 + j);
                                         ComponentVideo cv = RGBtoCV(rgb, image->denominator);
-                                        block->data[i + j * 2] = cv;
+                                        block->cv[i + j * 2] = cv;
                                 }
                         }
+
                         DCT dct = ComputeDCT(block);
-
-                        Quantized quantized_original = quantize(dct);
-
-                        uint32_t packed = pack_word(quantized_original);
+                        Quantized quantized = quantize(dct);
+                        uint32_t packed = packWord(quantized);
 
                         for (int i = 3; i >= 0; i--)
                         {
-                                uint32_t val = Bitpack_getu(packed, 8, i * 8);
-                                putchar(val);
+                                putchar(Bitpack_getu(packed, 8, i * 8));
                         }
 
-                        FREECVBlock(&block);
+                        FREE(quantized);
                         FREE(dct);
+                        FREECVBlock(&block);
                 }
         }
 
@@ -88,7 +86,7 @@ void decompress40(FILE *input)
                                 packed = Bitpack_newu(packed, 8, i * 8, byte);
                         }
 
-                        Quantized quantized = unpack_word(packed);
+                        Quantized quantized = unpackWord(packed);
 
                         DCT dct = inv_quantize(quantized);
 
@@ -99,16 +97,20 @@ void decompress40(FILE *input)
                                 for (size_t j = 0; j < 2; j++)
                                 {
                                         Pnm_rgb rgb = image->methods->at(image->pixels, col * 2 + i, row * 2 + j);
-                                        Pnm_rgb rgb_new = CVtoRGB(block->data[i + j * 2], image->denominator);
+                                        Pnm_rgb rgb_new = CVtoRGB(block->cv[i + j * 2], image->denominator);
                                         rgb->red = rgb_new->red;
                                         rgb->green = rgb_new->green;
                                         rgb->blue = rgb_new->blue;
+                                        FREE(rgb_new);
                                 }
                         }
-                        FREECVBlock(&block);
+
                         FREE(dct);
+                        FREE(quantized);
+                        FREECVBlock(&block);
                 }
         }
 
         Pnm_ppmwrite(stdout, image);
+        Pnm_ppmfree(&image);
 }

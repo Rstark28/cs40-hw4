@@ -20,9 +20,15 @@
 
 #define SQUARE(x) ((x) * (x))
 
-static FILE *openFile(char *fname, char *mode);
-void computeDiff(int col, int row, A2Methods_UArray2 array2, A2Methods_Object *ptr, void *cl);
-float computeE(Pnm_ppm image1, Pnm_ppm image2);
+static FILE *openFile(char *fname,
+                      char *mode);
+void computeDiff(int col,
+                 int row,
+                 A2Methods_UArray2 array2,
+                 A2Methods_Object *ptr,
+                 void *cl);
+float computeE(Pnm_ppm image1,
+               Pnm_ppm image2);
 
 /********** main ********
  *
@@ -118,7 +124,8 @@ int main(int argc, char *argv[])
  * Notes:
  *      Will CRE if any expectation is violated.
  ************************/
-static FILE *openFile(char *fname, char *mode)
+static FILE *openFile(char *fname,
+                      char *mode)
 {
         assert(fname != NULL && mode != NULL);
         FILE *fp = fopen(fname, mode);
@@ -179,7 +186,8 @@ typedef struct Wrapper
 void computeDiff(int col,
                  int row,
                  A2Methods_UArray2 array2,
-                 A2Methods_Object *ptr, void *cl)
+                 A2Methods_Object *ptr,
+                 void *cl)
 {
         assert(cl != NULL);
         assert(array2 != NULL);
@@ -195,7 +203,9 @@ void computeDiff(int col,
 
         /* Get the RGB values of the current pixel in both images */
         Pnm_rgb rgb_self = (Pnm_rgb)ptr;
-        Pnm_rgb rgb_other = other_image->methods->at(other_image->pixels, col, row);
+        Pnm_rgb rgb_other = other_image->methods->at(other_image->pixels,
+                                                     col,
+                                                     row);
         float self_denom = (float)w->self_denom;
         float other_denom = (float)other_image->denominator;
 
@@ -233,13 +243,16 @@ void computeDiff(int col,
  *      The function will compute the RMSE based on the overlapping region
  *      of the two images.
  ************************/
-float computeE(Pnm_ppm image1, Pnm_ppm image2)
+float computeE(Pnm_ppm image1,
+               Pnm_ppm image2)
 {
         assert(image1 != NULL && image2 != NULL);
 
         /* Get the minimum width and height of the two images */
-        int min_width = image1->width > image2->width ? image2->width : image1->width;
-        int min_height = image1->height > image2->height ? image2->height : image1->height;
+        int min_width = image1->width > image2->width ? image2->width
+                                                      : image1->width;
+        int min_height = image1->height > image2->height ? image2->height
+                                                         : image1->height;
 
         Wrapper w = {image2, 0, image1->denominator};
         image1->methods->map_row_major(image1->pixels, computeDiff, &w);

@@ -1,3 +1,17 @@
+/**************************************************************
+ *
+ *                     dct.c
+ *
+ *     Assignment: arith
+ *     Authors:    Robert Stark (rstark03), Kyle Wigdor (kwigdo01)
+ *     Date:       3/2/2025
+ *
+ *     This file contains the implementations for the Discrete Cosine Transform
+ *     (DCT) module. The module provides functions to compute the DCT of a
+ *     2x2 block of component video data.
+ *
+ ************************/
+
 #include "assert.h"
 #include "dct.h"
 #include "mem.h"
@@ -9,51 +23,40 @@
  * Computes the Discrete Cosine Transform (DCT) of a given CVBlock.
  *
  * Parameters:
- *      CVBlock block:  A pointer to the CVBlock structure containing the data.
+ *      CVBlock block:  A pointer to the CVBlock structure containing the
+ *                      2x2 block of component video data.
  *
  * Return:
  *      DCT:            A pointer to the computed DCT structure.
  *
  * Expects:
  *      The pointer block must not be NULL.
- *      The 2x2 block must be filled with valid ComponentVideo data.
+ *      The 2x2 block must be filled with valid ComponentVideo cv.
  *
  * Notes:
  *      Will CRE if any expectation is violated.
+ *      Client is responsible for freeing the returned DCT structure.
  ************************/
 DCT ComputeDCT(CVBlock block)
 {
         assert(block != NULL);
-        assert(block->data != NULL);
+        assert(block->cv != NULL);
 
-        ComponentVideo *data = block->data;
+        ComponentVideo *cv = block->cv;
 
         DCT dct;
         NEW(dct);
 
         /* Compute Pbar_b and Pbar_r */
-        float Pbar_b = (data[3]->P_b + data[2]->P_b + data[1]->P_b + data[0]->P_b) / 4.0;
-        float Pbar_r = (data[3]->P_r + data[2]->P_r + data[1]->P_r + data[0]->P_r) / 4.0;
-
-        /* Get the index of the chroma values */
-        dct->Pbar_b = Pbar_b;
-        dct->Pbar_r = Pbar_r;
+        dct->Pbar_b = (cv[3]->P_b + cv[2]->P_b + cv[1]->P_b + cv[0]->P_b) / 4.0;
+        dct->Pbar_r = (cv[3]->P_r + cv[2]->P_r + cv[1]->P_r + cv[0]->P_r) / 4.0;
 
         /* Compute the DCT coefficients */
-        dct->a = (data[3]->Y + data[2]->Y + data[1]->Y + data[0]->Y) / 4.0;
-        dct->b = (data[3]->Y + data[2]->Y - data[1]->Y - data[0]->Y) / 4.0;
-        dct->c = (data[3]->Y - data[2]->Y + data[1]->Y - data[0]->Y) / 4.0;
-        dct->d = (data[3]->Y - data[2]->Y - data[1]->Y + data[0]->Y) / 4.0;
+        dct->a = (cv[3]->Y + cv[2]->Y + cv[1]->Y + cv[0]->Y) / 4.0;
+        dct->b = (cv[3]->Y + cv[2]->Y - cv[1]->Y - cv[0]->Y) / 4.0;
+        dct->c = (cv[3]->Y - cv[2]->Y + cv[1]->Y - cv[0]->Y) / 4.0;
+        dct->d = (cv[3]->Y - cv[2]->Y - cv[1]->Y + cv[0]->Y) / 4.0;
 
-        // CVBlock block2 = InvertDCT(dct);
-
-        // if ((block2->data[3]->Y - block->data[3]->Y) > 0.02)
-        // {
-
-        //         printf("%f, %f, %f, %f, %f, %f\n", dct->a, dct->b, dct->c, dct->d, dct->Pbar_b, dct->Pbar_r);
-        //         printf("%f %f %f %f\n", block2->data[0]->Y, block2->data[1]->Y, block2->data[2]->Y, block2->data[3]->Y);
-        //         printf("%f %f %f %f\n\n\n", block->data[0]->Y, block->data[1]->Y, block->data[2]->Y, block->data[3]->Y);
-        // }
         return dct;
 }
 
@@ -62,7 +65,8 @@ DCT ComputeDCT(CVBlock block)
  * Inverts the Discrete Cosine Transform (DCT) to obtain the original CVBlock.
  *
  * Parameters:
- *      DCT dct:        A pointer to the DCT structure containing the data.
+ *      DCT dct:        A pointer to the DCT structure containing the
+ *                      a, b, c, d, Pbar_b, and Pbar_r values.
  *
  * Return:
  *      CVBlock:        A pointer to the reconstructed CVBlock structure.
@@ -72,10 +76,12 @@ DCT ComputeDCT(CVBlock block)
  *
  * Notes:
  *      Will CRE if any expectation is violated.
+ *      Client is responsible for freeing the returned CVBlock structure.
  ************************/
 CVBlock InvertDCT(DCT dct)
 {
         assert(dct != NULL);
+
         CVBlock block;
         NEW(block);
 
@@ -83,24 +89,16 @@ CVBlock InvertDCT(DCT dct)
          * Use Pbar_b, Pbar_r for each P_b, P_r.*/
         for (int i = 0; i < 4; i++)
         {
-                NEW(block->data[i]);
-                block->data[i]->P_b = dct->Pbar_b;
-                block->data[i]->P_r = dct->Pbar_r;
+                NEW(block->cv[i]);
+                block->cv[i]->P_b = dct->Pbar_b;
+                block->cv[i]->P_r = dct->Pbar_r;
         }
 
         /* Compute the Y values */
-        block->data[0]->Y = dct->a - dct->b - dct->c + dct->d;
-        block->data[1]->Y = dct->a - dct->b + dct->c - dct->d;
-        block->data[2]->Y = dct->a + dct->b - dct->c - dct->d;
-        block->data[3]->Y = dct->a + dct->b + dct->c + dct->d;
-
-        for (size_t i = 0; i < 4; i++)
-        {
-                if (block->data[i]->Y < 0)
-                {
-                        block->data[i]->Y = 0;
-                }
-        }
+        block->cv[0]->Y = dct->a - dct->b - dct->c + dct->d;
+        block->cv[1]->Y = dct->a - dct->b + dct->c - dct->d;
+        block->cv[2]->Y = dct->a + dct->b - dct->c - dct->d;
+        block->cv[3]->Y = dct->a + dct->b + dct->c + dct->d;
 
         return block;
 }
@@ -113,7 +111,7 @@ CVBlock InvertDCT(DCT dct)
  *      CVBlock *block:  A pointer to the CVBlock structure to be freed.
  *
  * Expects:
- *      The pointer block must not be NULL.
+ *      The pointer and the block must not be NULL.
  *
  * Notes:
  *      Will CRE if any expectation is violated.
@@ -127,7 +125,7 @@ void FREECVBlock(CVBlock *block)
         assert(*block != NULL);
 
         for (int i = 0; i < 4; i++)
-                FREE((*block)->data[i]);
+                FREE((*block)->cv[i]);
 
         FREE(*block);
         block = NULL;

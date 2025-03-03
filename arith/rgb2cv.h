@@ -1,3 +1,17 @@
+/**************************************************************
+ *
+ *                     rgb2cv.h
+ *
+ *     Assignment: arith
+ *     Authors:    Robert Stark (rstark03), Kyle Wigdor (kwigdo01)
+ *     Date:       3/2/2025
+ *
+ *     This file contains the interface for the RGB to Component Video
+ *     conversion module. It provides functions to convert between RGB and
+ *     component video representations.
+ *
+ ************************/
+
 #ifndef RGB2CV_H
 #define RGB2CV_H
 
@@ -6,13 +20,13 @@
 
 /********** ComponentVideo ********
  *
- * A structure representing a Component Video (CV) value.
+ * A structure to hold the Y, Pb, and Pr values of a pixel.
  *
- * Elements:
- *      float Y: The Y component (luminance).
- *      float P_b: The P_b component (blue-difference chroma).
- *      float P_r: The P_r component (red-difference chroma).
- ***********************/
+ * Members:
+ *      float Y:    The Y value of the pixel.
+ *      float P_b:  The Pb value of the pixel.
+ *      float P_r:  The Pr value of the pixel.
+ ************************/
 typedef struct ComponentVideo
 {
         float Y;
@@ -37,8 +51,10 @@ typedef struct ComponentVideo
  *
  * Notes:
  *      Will CRE if any expectation is violated.
+ *      Client is responsible for freeing the returned ComponentVideo structure.
  ************************/
-ComponentVideo RGBtoCV(Pnm_rgb rgb, int denominator);
+ComponentVideo RGBtoCV(Pnm_rgb rgb,
+                       int denominator);
 
 /********** CVtoRGB ********
  *
@@ -57,7 +73,9 @@ ComponentVideo RGBtoCV(Pnm_rgb rgb, int denominator);
  *
  * Notes:
  *      Will CRE if any expectation is violated.
+ *      Client is responsible for freeing the returned Pnm_rgb structure.
  ************************/
-Pnm_rgb CVtoRGB(ComponentVideo cv, int denominator);
+Pnm_rgb CVtoRGB(ComponentVideo cv,
+                int denominator);
 
 #endif

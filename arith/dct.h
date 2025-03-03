@@ -1,3 +1,17 @@
+/**************************************************************
+ *
+ *                     dct.h
+ *
+ *     Assignment: arith
+ *     Authors:    Robert Stark (rstark03), Kyle Wigdor (kwigdo01)
+ *     Date:       3/2/2025
+ *
+ *     This file contains the interface for the Discrete Cosine Transform (DCT)
+ *     module. The module provides functions to compute the DCT of a 2x2 block
+ *     of component video data.
+ *
+ ************************/
+
 #ifndef DCT_H
 #define DCT_H
 
@@ -9,12 +23,12 @@
  * A 2x2 block of ComponentVideo structs.
  *
  * Elements:
- *      ComponentVideo data[4]: The array of ComponentVideo structs.
+ *      ComponentVideo cv[4]:   The array of ComponentVideo structs.
  *                              Each struct contains the Y, Pb, and Pr values.
  ***********************/
 typedef struct CVBlock
 {
-        ComponentVideo data[4];
+        ComponentVideo cv[4];
 } *CVBlock;
 
 /********** DCT ********
@@ -44,16 +58,19 @@ typedef struct DCT
  * Computes the Discrete Cosine Transform (DCT) of a given CVBlock.
  *
  * Parameters:
- *      CVBlock block:  A pointer to the CVBlock structure containing the data.
+ *      CVBlock block:  A pointer to the CVBlock structure containing the
+ *                      2x2 block of component video data.
  *
  * Return:
  *      DCT:            A pointer to the computed DCT structure.
  *
  * Expects:
  *      The pointer block must not be NULL.
+ *      The 2x2 block must be filled with valid ComponentVideo cv.
  *
  * Notes:
  *      Will CRE if any expectation is violated.
+ *      Client is responsible for freeing the returned DCT structure.
  ************************/
 DCT ComputeDCT(CVBlock block);
 
@@ -62,7 +79,8 @@ DCT ComputeDCT(CVBlock block);
  * Inverts the Discrete Cosine Transform (DCT) to obtain the original CVBlock.
  *
  * Parameters:
- *      DCT dct:        A pointer to the DCT structure containing the data.
+ *      DCT dct:        A pointer to the DCT structure containing the
+ *                      a, b, c, d, Pbar_b, and Pbar_r values.
  *
  * Return:
  *      CVBlock:        A pointer to the reconstructed CVBlock structure.
@@ -72,6 +90,7 @@ DCT ComputeDCT(CVBlock block);
  *
  * Notes:
  *      Will CRE if any expectation is violated.
+ *      Client is responsible for freeing the returned CVBlock structure.
  ************************/
 CVBlock InvertDCT(DCT dct);
 
@@ -83,7 +102,7 @@ CVBlock InvertDCT(DCT dct);
  *      CVBlock *block:  A pointer to the CVBlock structure to be freed.
  *
  * Expects:
- *      The pointer block must not be NULL.
+ *      The pointer and the block must not be NULL.
  *
  * Notes:
  *      Will CRE if any expectation is violated.
