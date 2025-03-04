@@ -36,18 +36,19 @@ typedef struct ComponentVideo
 
 /********** RGBtoCV ********
  *
- * Converts a Pnm_rgb structure to a ComponentVideo structure.
+ * Converts a RGB to component video.
  *
  * Parameters:
- *      Pnm_rgb rgb:       A pointer to the Pnm_rgb structure containing the
- *                         RGB values.
+ *      Pnm_rgb rgb:       A Pnm_rgb structure containing the RGB values.
  *      int denominator:   The denominator used for scaling the RGB values.
  *
  * Return:
- *      ComponentVideo:    A pointer to the converted ComponentVideo structure.
+ *      ComponentVideo:    A ComponentVideo structure contianing the Y, Pb,
+ *                         and Pr values.
  *
  * Expects:
- *      The pointer rgb must not be NULL.
+ *      rgb must not be NULL.
+ *      denominator must be greater than 0.
  *
  * Notes:
  *      Will CRE if any expectation is violated.
@@ -58,18 +59,19 @@ ComponentVideo RGBtoCV(Pnm_rgb rgb,
 
 /********** CVtoRGB ********
  *
- * Converts a ComponentVideo structure to a Pnm_rgb structure.
+ * Converts component video to RGB.
  *
  * Parameters:
- *      ComponentVideo cv: A pointer to the ComponentVideo structure containing
+ *      ComponentVideo cv: A ComponentVideo structure containing
  *                         the Y, Pb, and Pr values.
  *      int denominator:   The denominator used for scaling the RGB values.
  *
  * Return:
- *      Pnm_rgb:          A pointer to the converted Pnm_rgb structure.
+ *      Pnm_rgb:           A Pnm_rgb structure containing the RGB values.
  *
  * Expects:
- *      The pointer cv must not be NULL.
+ *      cv must not be NULL.
+ *      denominator must be greater than 0.
  *
  * Notes:
  *      Will CRE if any expectation is violated.

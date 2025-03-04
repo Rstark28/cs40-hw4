@@ -15,6 +15,7 @@
 #include "packword.h"
 #include "bitpack.h"
 #include "mem.h"
+#include "assert.h"
 
 /********** packWord ********
  *
@@ -28,7 +29,7 @@
  *     Pbar_r: 4 bits, stored at bits 0-3
  *
  * Parameters:
- *      Quantized q:    A pointer to the Quantized structure containing the
+ *      Quantized q:    A Quantized structure containing the
  *                      quantized values.
  *
  * Return:
@@ -71,11 +72,10 @@ uint32_t packWord(Quantized q)
  *      uint32_t word:   The 32-bit word containing the packed values.
  *
  * Return:
- *      Quantized:       A pointer to a Quantized structure containing the
+ *      Quantized:       A Quantized structure containing the
  *                       unpacked values.
  *
  * Expects:
- *      The pointer word must not be NULL.
  *
  * Notes:
  *      Will CRE if any expectation is violated.
@@ -83,8 +83,6 @@ uint32_t packWord(Quantized q)
  ************************/
 Quantized unpackWord(uint32_t word)
 {
-        assert(word != NULL);
-
         Quantized q;
         NEW(q);
 

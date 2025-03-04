@@ -1,5 +1,5 @@
 /**************************************************************
- *
+ *s
  *                     dct.h
  *
  *     Assignment: arith
@@ -58,15 +58,15 @@ typedef struct DCT
  * Computes the Discrete Cosine Transform (DCT) of a given CVBlock.
  *
  * Parameters:
- *      CVBlock block:  A pointer to the CVBlock structure containing the
+ *      CVBlock block:  A CVBlock structure containing the
  *                      2x2 block of component video data.
  *
  * Return:
- *      DCT:            A pointer to the computed DCT structure.
+ *      DCT:            A computed DCT structure.
  *
  * Expects:
- *      The pointer block must not be NULL.
- *      The 2x2 block must be filled with valid ComponentVideo cv.
+ *      block must not be NULL.
+ *      The 2x2 block must be filled with valid ComponentVideo structs.
  *
  * Notes:
  *      Will CRE if any expectation is violated.
@@ -79,11 +79,11 @@ DCT ComputeDCT(CVBlock block);
  * Inverts the Discrete Cosine Transform (DCT) to obtain the original CVBlock.
  *
  * Parameters:
- *      DCT dct:        A pointer to the DCT structure containing the
+ *      DCT dct:        A DCT structure containing the
  *                      a, b, c, d, Pbar_b, and Pbar_r values.
  *
  * Return:
- *      CVBlock:        A pointer to the reconstructed CVBlock structure.
+ *      CVBlock:        The reconstructed CVBlock structure.
  *
  * Expects:
  *      The pointer dct must not be NULL.
@@ -99,7 +99,7 @@ CVBlock InvertDCT(DCT dct);
  * Frees the memory allocated for a CVBlock.
  *
  * Parameters:
- *      CVBlock *block:  A pointer to the CVBlock structure to be freed.
+ *      CVBlock *block:  A CVBlock structure to be freed.
  *
  * Expects:
  *      The pointer and the block must not be NULL.

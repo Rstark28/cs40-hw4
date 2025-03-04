@@ -113,14 +113,13 @@ float inv_quantize_a(unsigned in)
  * Quantizes the values of a DCT structure.
  *
  * Parameters:
- *      DCT dct:    A pointer to the DCT structure containing the DCT values.
+ *      DCT dct:    A DCT structure containing the DCT values.
  *
  * Return:
- *      Quantized:  A pointer to a Quantized structure containing the quantized
- *                  values.
+ *      Quantized:  A Quantized structure containing the quantized values.
  *
  * Expects:
- *      The pointer dct must not be NULL.
+ *      dct must not be NULL.
  *
  * Notes:
  *      Will CRE if any expectation is violated.
@@ -143,25 +142,24 @@ Quantized quantize(DCT dct)
         return q;
 }
 
-/********** inv_quantize ********
+/********** dequantize ********
  *
  * Dequantizes the values of a Quantized structure.
  *
  * Parameters:
- *      Quantized q:    A pointer to the Quantized structure containing the
- *                      quantized values.
+ *      Quantized q:    A Quantized structure containing the quantized values.
  *
  * Return:
- *      DCT:            A pointer to a DCT structure containing the DCT values.
+ *      DCT:            A DCT structure containing the DCT values.
  *
  * Expects:
- *      The pointer q must not be NULL.
+ *      q must not be NULL.
  *
  * Notes:
  *      Will CRE if any expectation is violated.
  *      Client is responsible for freeing the returned DCT structure.
  ************************/
-DCT inv_quantize(Quantized q)
+DCT dequantize(Quantized q)
 {
         assert(q != NULL);
 

@@ -13,8 +13,7 @@
  *      unsigned width:    The bit width to check against.
  *
  * Return:
- *      bool:              True if the value can fit within the specified width,
- *                         false otherwise.
+ *      bool:              True if the value can fit, false otherwise.
  *
  * Expects:
  *      The width is at most 64.
@@ -39,8 +38,7 @@ bool Bitpack_fitsu(uint64_t n,
  *      unsigned width:    The bit width to check against.
  *
  * Return:
- *      bool:              True if the value can fit within the specified width,
- *                         false otherwise.
+ *      bool:              True if the value can, false otherwise.
  *
  * Expects:
  *      The width is at most 64.
@@ -80,8 +78,7 @@ uint64_t Bitpack_getu(uint64_t word,
                       unsigned width,
                       unsigned lsb)
 {
-        assert(width <= MAX_WIDTH);
-        assert(width + lsb <= MAX_WIDTH);
+        assert((width <= MAX_WIDTH) && (width + lsb <= MAX_WIDTH));
         uint64_t mask = (width == MAX_WIDTH) ? ~0ULL : ((1ULL << width) - 1);
         return (word >> lsb) & mask;
 }
@@ -109,8 +106,7 @@ int64_t Bitpack_gets(uint64_t word,
                      unsigned width,
                      unsigned lsb)
 {
-        assert(width <= MAX_WIDTH);
-        assert(width + lsb <= MAX_WIDTH);
+        assert((width <= MAX_WIDTH) && (width + lsb <= MAX_WIDTH));
         uint64_t mask = (width == MAX_WIDTH) ? ~0ULL : ((1ULL << width) - 1);
         int64_t value = (word >> lsb) & mask;
 
@@ -119,6 +115,7 @@ int64_t Bitpack_gets(uint64_t word,
         {
                 value |= ~mask;
         }
+
         return value;
 }
 
@@ -129,7 +126,7 @@ int64_t Bitpack_gets(uint64_t word,
  * Parameters:
  *      uint64_t word:     The word to insert into.
  *      unsigned width:    The bit width of the value to insert.
- *      unsigned lsb:      The least significant bit of the value to insert.
+ *      unsigned lsb:      The least significant bit of where to insert.
  *      uint64_t value:    The value to insert.
  *
  * Return:
@@ -138,7 +135,7 @@ int64_t Bitpack_gets(uint64_t word,
  * Expects:
  *      The width is at most 64.
  *      The sum of width and lsb is at most 64.
- *      The value must fit within the specified width.
+ *      The value fits within the specified width.
  *
  * Notes:
  *      Will CRE if any expectation is violated.
@@ -148,8 +145,7 @@ uint64_t Bitpack_newu(uint64_t word,
                       unsigned lsb,
                       uint64_t value)
 {
-        assert(width <= MAX_WIDTH);
-        assert(width + lsb <= MAX_WIDTH);
+        assert((width <= MAX_WIDTH) && (width + lsb <= MAX_WIDTH));
         assert(Bitpack_fitsu(value, width));
 
         uint64_t mask = (width == MAX_WIDTH) ? ~0ULL : ((1ULL << width) - 1);
@@ -165,7 +161,7 @@ uint64_t Bitpack_newu(uint64_t word,
  * Parameters:
  *      uint64_t word:     The word to insert into.
  *      unsigned width:    The bit width of the value to insert.
- *      unsigned lsb:      The least significant bit of the value to insert.
+ *      unsigned lsb:      The least significant bit of where to insert.
  *      int64_t value:     The value to insert.
  *
  * Return:
@@ -174,7 +170,7 @@ uint64_t Bitpack_newu(uint64_t word,
  * Expects:
  *      The width is at most 64.
  *      The sum of width and lsb is at most 64.
- *      The value must fit within the specified width.
+ *      The value fits within the specified width.
  *
  * Notes:
  *      Will CRE if any expectation is violated.

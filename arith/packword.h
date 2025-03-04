@@ -29,7 +29,7 @@
  *     Pbar_r: 4 bits, stored at bits 0-3
  *
  * Parameters:
- *      Quantized q:    A pointer to the Quantized structure containing the
+ *      Quantized q:    A Quantized structure containing the
  *                      quantized values.
  *
  * Return:
@@ -58,7 +58,7 @@ uint32_t packWord(Quantized q);
  *      uint32_t word:   The 32-bit word containing the packed values.
  *
  * Return:
- *      Quantized:       A pointer to a Quantized structure containing the
+ *      Quantized:       A Quantized structure containing the
  *                       unpacked values.
  *
  * Expects:

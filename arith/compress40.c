@@ -88,7 +88,7 @@ void decompress40(FILE *input)
 
                         Quantized quantized = unpackWord(packed);
 
-                        DCT dct = inv_quantize(quantized);
+                        DCT dct = dequantize(quantized);
 
                         CVBlock block = InvertDCT(dct);
 
