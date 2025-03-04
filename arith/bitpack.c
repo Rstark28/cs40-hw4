@@ -52,6 +52,7 @@ bool Bitpack_fitss(int64_t n,
         assert(width <= MAX_WIDTH);
         int64_t upper_bound = 1LL << (width - 1);
         int64_t lower_bound = -upper_bound;
+
         return width == MAX_WIDTH || ((n >= lower_bound) && (n < upper_bound));
 }
 
@@ -80,6 +81,7 @@ uint64_t Bitpack_getu(uint64_t word,
 {
         assert((width <= MAX_WIDTH) && (width + lsb <= MAX_WIDTH));
         uint64_t mask = (width == MAX_WIDTH) ? ~0ULL : ((1ULL << width) - 1);
+
         return (word >> lsb) & mask;
 }
 
@@ -182,5 +184,6 @@ uint64_t Bitpack_news(uint64_t word,
 {
         assert(Bitpack_fitss(value, width));
         uint64_t mask = (width == MAX_WIDTH) ? ~0ULL : ((1ULL << width) - 1);
+
         return Bitpack_newu(word, width, lsb, (uint64_t)value & mask);
 }
