@@ -94,9 +94,11 @@ void decompress40(FILE *input)
         assert(input != NULL);
 
         /* Read header */
-        unsigned width, height;
-        assert(fscanf(input, "COMP40 Compressed image format 2\n%u %u", &width, &height) == 2);
-        assert(getc(input) == '\n');
+        unsigned height, width;
+        int read = fscanf(input, "COMP40 Compressed image format 2\n%u %u", &width, &height);
+        assert(read == 2);
+        int c = getc(input);
+        assert(c == '\n');
 
         /* Allocate and initialize image */
         Pnm_ppm image;
