@@ -56,18 +56,15 @@ uint32_t packWord(Quantized q);
  *
  * Parameters:
  *      uint32_t word:   The 32-bit word containing the packed values.
- *
- * Return:
- *      Quantized:       A Quantized structure containing the
- *                       unpacked values.
+ *      Quantized q:     A Quantized structure to store the unpacked values.
  *
  * Expects:
- *      The pointer word must not be NULL.
  *
  * Notes:
  *      Will CRE if any expectation is violated.
  *      Client is responsible for freeing the returned Quantized structure.
  ************************/
-Quantized unpackWord(uint32_t word);
+void unpackWord(Quantized q,
+                uint32_t word);
 
 #endif

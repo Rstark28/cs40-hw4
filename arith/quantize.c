@@ -113,24 +113,21 @@ float inv_quantize_a(unsigned in)
  * Quantizes the values of a DCT structure.
  *
  * Parameters:
- *      DCT dct:    A DCT structure containing the DCT values.
- *
- * Return:
- *      Quantized:  A Quantized structure containing the quantized values.
+ *      q:      A Quantized structure to store the quantized values.
+ *      dct:    A DCT structure containing the DCT values.
  *
  * Expects:
+ *      q must not be NULL.
  *      dct must not be NULL.
  *
  * Notes:
  *      Will CRE if any expectation is violated.
- *      Client is responsible for freeing the returned Quantized structure.
  ************************/
-Quantized quantize(DCT dct)
+void quantize(Quantized q,
+              DCT dct)
 {
+        assert(q != NULL);
         assert(dct != NULL);
-
-        Quantized q;
-        NEW(q);
 
         q->a = quantize_a(dct->a);
         q->b = quantize_bcd(dct->b);
@@ -138,8 +135,6 @@ Quantized quantize(DCT dct)
         q->d = quantize_bcd(dct->d);
         q->Pbar_b = Arith40_index_of_chroma(dct->Pbar_b);
         q->Pbar_r = Arith40_index_of_chroma(dct->Pbar_r);
-
-        return q;
 }
 
 /********** dequantize ********
@@ -147,24 +142,21 @@ Quantized quantize(DCT dct)
  * Dequantizes the values of a Quantized structure.
  *
  * Parameters:
- *      Quantized q:    A Quantized structure containing the quantized values.
- *
- * Return:
- *      DCT:            A DCT structure containing the DCT values.
+ *      dct:    A DCT structure to store the dequantized values.
+ *      q:      A Quantized structure containing the quantized values.
  *
  * Expects:
+ *      dct must not be NULL.
  *      q must not be NULL.
  *
  * Notes:
  *      Will CRE if any expectation is violated.
- *      Client is responsible for freeing the returned DCT structure.
  ************************/
-DCT dequantize(Quantized q)
+void dequantize(DCT dct,
+                Quantized q)
 {
+        assert(dct != NULL);
         assert(q != NULL);
-
-        DCT dct;
-        NEW(dct);
 
         dct->a = inv_quantize_a(q->a);
         dct->b = inv_quantize_bcd(q->b);
@@ -172,6 +164,50 @@ DCT dequantize(Quantized q)
         dct->d = inv_quantize_bcd(q->d);
         dct->Pbar_b = Arith40_chroma_of_index(q->Pbar_b);
         dct->Pbar_r = Arith40_chroma_of_index(q->Pbar_r);
+}
 
-        return dct;
+/********** Quantized_new ********
+ *
+ * Allocates memory for a new Quantized structure.
+ *
+ * Parameters:
+ *      None.
+ *
+ * Returns:
+ *      Quantized: A newly allocated Quantized structure.
+ *
+ * Notes:
+ *      Will CRE if any expectation is violated.
+ *      Client is responsible for freeing the returned Quantized structure with
+ *      FREE.
+ ************************/
+Quantized Quantized_new()
+{
+        Quantized q;
+        NEW(q);
+        return q;
+}
+
+/********** Quantized_free ********
+ *
+ * Frees the memory allocated for a Quantized structure.
+ *
+ * Parameters:
+ *      Quantized *q:  A pointer to a Quantized structure to be freed.
+ *
+ * Expects:
+ *      q must not be NULL.
+ *      *q must not be NULL.
+ *
+ * Notes:
+ *      Will CRE if any expectation is violated.
+ *      The pointer *q will be set to NULL after freeing.
+ ************************/
+void Quantized_free(Quantized *q)
+{
+        assert(q != NULL);
+        assert(*q != NULL);
+
+        FREE(*q);
+        q = NULL;
 }

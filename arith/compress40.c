@@ -3,7 +3,7 @@
 #include "pnm.h"
 #include "a2methods.h"
 #include "a2plain.h"
-#include "rgb2cv.h"
+#include "rgb2cav.h"
 #include "dct.h"
 #include "stdlib.h"
 #include "mem.h"
@@ -18,37 +18,42 @@ void compress40(FILE *input)
 
         printf("COMP40 Compressed image format 2\n%u %u\n", image->width & ~1, image->height & ~1);
 
+        RGB_block rgb_block;
+        NEW(rgb_block);
+        CAV_block cav_block = CAV_block_new();
+        DCT dct = DCT_new();
+        Quantized quantized = Quantized_new();
+
         for (size_t col = 0; col < image->width / 2; col++)
         {
                 for (size_t row = 0; row < image->height / 2; row++)
                 {
-                        CVBlock block;
-                        NEW(block);
                         for (size_t i = 0; i < 2; i++)
                         {
                                 for (size_t j = 0; j < 2; j++)
                                 {
+                                        size_t index = i + j * 2;
                                         Pnm_rgb rgb = image->methods->at(image->pixels, col * 2 + i, row * 2 + j);
-                                        ComponentVideo cv = RGBtoCV(rgb, image->denominator);
-                                        block->cv[i + j * 2] = cv;
+                                        rgb_block->rgb[index] = rgb;
                                 }
                         }
 
-                        DCT dct = ComputeDCT(block);
-                        Quantized quantized = quantize(dct);
+                        RGBtoCAV_block(cav_block, rgb_block, image->denominator);
+                        computeDCT(dct, cav_block);
+                        quantize(quantized, dct);
                         uint32_t packed = packWord(quantized);
 
                         for (int i = 3; i >= 0; i--)
                         {
                                 putchar(Bitpack_getu(packed, 8, i * 8));
                         }
-
-                        FREE(quantized);
-                        FREE(dct);
-                        FREECVBlock(&block);
                 }
         }
 
+        Quantized_free(&quantized);
+        DCT_free(&dct);
+        CAV_block_free(&cav_block);
+        FREE(rgb_block);
         Pnm_ppmfree(&image);
 }
 
@@ -74,6 +79,11 @@ void decompress40(FILE *input)
         A2Methods_UArray2 pixels = image->methods->new(image->width, image->height, 12);
         image->pixels = pixels;
 
+        RGB_block rgb_block = RGB_block_new();
+        CAV_block cav_block = CAV_block_new();
+        DCT dct = DCT_new();
+        Quantized quantized = Quantized_new();
+
         for (size_t col = 0; col < width / 2; col++)
         {
                 for (size_t row = 0; row < height / 2; row++)
@@ -86,31 +96,30 @@ void decompress40(FILE *input)
                                 packed = Bitpack_newu(packed, 8, i * 8, byte);
                         }
 
-                        Quantized quantized = unpackWord(packed);
-
-                        DCT dct = dequantize(quantized);
-
-                        CVBlock block = InvertDCT(dct);
+                        unpackWord(quantized, packed);
+                        dequantize(dct, quantized);
+                        invertDCT(cav_block, dct);
 
                         for (size_t i = 0; i < 2; i++)
                         {
                                 for (size_t j = 0; j < 2; j++)
                                 {
+                                        int index = i + j * 2;
                                         Pnm_rgb rgb = image->methods->at(image->pixels, col * 2 + i, row * 2 + j);
-                                        Pnm_rgb rgb_new = CVtoRGB(block->cv[i + j * 2], image->denominator);
-                                        rgb->red = rgb_new->red;
-                                        rgb->green = rgb_new->green;
-                                        rgb->blue = rgb_new->blue;
-                                        FREE(rgb_new);
+                                        CAVtoRGB_block(rgb_block, cav_block, image->denominator);
+                                        rgb->red = rgb_block->rgb[index]->red;
+                                        rgb->green = rgb_block->rgb[index]->green;
+                                        rgb->blue = rgb_block->rgb[index]->blue;
                                 }
                         }
-
-                        FREE(dct);
-                        FREE(quantized);
-                        FREECVBlock(&block);
                 }
         }
 
         Pnm_ppmwrite(stdout, image);
+
+        Quantized_free(&quantized);
+        DCT_free(&dct);
+        CAV_block_free(&cav_block);
+        RGB_block_free(&rgb_block);
         Pnm_ppmfree(&image);
 }

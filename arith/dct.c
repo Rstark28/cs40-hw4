@@ -8,7 +8,7 @@
  *
  *     This file contains the implementations for the Discrete Cosine Transform
  *     (DCT) module. The module provides functions to compute the DCT of a
- *     2x2 block of component video data.
+ *     2x2 block of CAV data.
  *
  ************************/
 
@@ -16,117 +16,128 @@
 #include "dct.h"
 #include "mem.h"
 #include "pnm.h"
-#include "rgb2cv.h"
+#include "rgb2cav.h"
 
-/********** ComputeDCT ********
+/********** computeDCT ********
  *
- * Computes the Discrete Cosine Transform (DCT) of a given CVBlock.
+ * Computes the Discrete Cosine Transform (DCT) of a given CAV_block.
+ * The DCT coefficients are stored in the DCT structure.
  *
  * Parameters:
- *      CVBlock block:  A CVBlock structure containing the
- *                      2x2 block of component video data.
- *
- * Return:
- *      DCT:            A computed DCT structure.
+ *      dct:    A DCT structure to store the computed DCT values.
+ *      block:  A CAV_block structure containing the 2x2 block of
+ *              CAV data.
  *
  * Expects:
+ *      dct must not be NULL.
  *      block must not be NULL.
  *      The 2x2 block must be filled with valid ComponentVideo structs.
  *
  * Notes:
  *      Will CRE if any expectation is violated.
- *      Client is responsible for freeing the returned DCT structure.
  ************************/
-DCT ComputeDCT(CVBlock block)
+void computeDCT(DCT dct,
+                CAV_block block)
 {
+        assert(dct != NULL);
         assert(block != NULL);
-        assert(block->cv != NULL);
+        assert(block->cav != NULL);
 
-        ComponentVideo *cv = block->cv;
-
-        DCT dct;
-        NEW(dct);
+        CAV *cav = block->cav;
 
         /* Compute Pbar_b and Pbar_r */
-        dct->Pbar_b = (cv[3]->P_b + cv[2]->P_b + cv[1]->P_b + cv[0]->P_b) / 4.0;
-        dct->Pbar_r = (cv[3]->P_r + cv[2]->P_r + cv[1]->P_r + cv[0]->P_r) / 4.0;
+        dct->Pbar_b = (cav[3]->P_b + cav[2]->P_b + cav[1]->P_b + cav[0]->P_b) / 4.0;
+        dct->Pbar_r = (cav[3]->P_r + cav[2]->P_r + cav[1]->P_r + cav[0]->P_r) / 4.0;
 
         /* Compute the DCT coefficients */
-        dct->a = (cv[3]->Y + cv[2]->Y + cv[1]->Y + cv[0]->Y) / 4.0;
-        dct->b = (cv[3]->Y + cv[2]->Y - cv[1]->Y - cv[0]->Y) / 4.0;
-        dct->c = (cv[3]->Y - cv[2]->Y + cv[1]->Y - cv[0]->Y) / 4.0;
-        dct->d = (cv[3]->Y - cv[2]->Y - cv[1]->Y + cv[0]->Y) / 4.0;
-
-        return dct;
+        dct->a = (cav[3]->Y + cav[2]->Y + cav[1]->Y + cav[0]->Y) / 4.0;
+        dct->b = (cav[3]->Y + cav[2]->Y - cav[1]->Y - cav[0]->Y) / 4.0;
+        dct->c = (cav[3]->Y - cav[2]->Y + cav[1]->Y - cav[0]->Y) / 4.0;
+        dct->d = (cav[3]->Y - cav[2]->Y - cav[1]->Y + cav[0]->Y) / 4.0;
 }
 
-/********** InvertDCT ********
+/********** invertDCT ********
  *
- * Inverts the Discrete Cosine Transform (DCT) to obtain the original CVBlock.
+ * Computes the inverse Discrete Cosine Transform (DCT) of a given DCT
+ * structure. The resulting CAV data is stored in the
+ * CAV_block structure.
  *
  * Parameters:
- *      DCT dct:        A DCT structure containing the
- *                      a, b, c, d, Pbar_b, and Pbar_r values.
- *
- * Return:
- *      CVBlock:        The reconstructed CVBlock structure.
+ *      CAV_block block:  A CAV_block structure to store the computed component
+ *                      video data.
+ *      DCT dct:        A DCT structure containing the DCT coefficients.
  *
  * Expects:
- *      The pointer dct must not be NULL.
+ *      block must not be NULL.
+ *      dct must not be NULL.
  *
  * Notes:
  *      Will CRE if any expectation is violated.
- *      Client is responsible for freeing the returned CVBlock structure.
+ *      Client is responsible for freeing the returned CAV_block structure.
  ************************/
-CVBlock InvertDCT(DCT dct)
+void invertDCT(CAV_block block,
+               DCT dct)
 {
+        assert(block != NULL);
         assert(dct != NULL);
-
-        CVBlock block;
-        NEW(block);
 
         /* Compute Pbar_b and Pbar_r.
          * Use Pbar_b, Pbar_r for each P_b, P_r.*/
         for (int i = 0; i < 4; i++)
         {
-                NEW(block->cv[i]);
-                block->cv[i]->P_b = dct->Pbar_b;
-                block->cv[i]->P_r = dct->Pbar_r;
+                block->cav[i]->P_b = dct->Pbar_b;
+                block->cav[i]->P_r = dct->Pbar_r;
         }
 
         /* Compute the Y values */
-        block->cv[0]->Y = dct->a - dct->b - dct->c + dct->d;
-        block->cv[1]->Y = dct->a - dct->b + dct->c - dct->d;
-        block->cv[2]->Y = dct->a + dct->b - dct->c - dct->d;
-        block->cv[3]->Y = dct->a + dct->b + dct->c + dct->d;
-
-        return block;
+        block->cav[0]->Y = dct->a - dct->b - dct->c + dct->d;
+        block->cav[1]->Y = dct->a - dct->b + dct->c - dct->d;
+        block->cav[2]->Y = dct->a + dct->b - dct->c - dct->d;
+        block->cav[3]->Y = dct->a + dct->b + dct->c + dct->d;
 }
 
-/**********FREECVBlock********
+/********** DCT_new ********
  *
- * Frees the memory allocated for a CVBlock.
+ * Allocates memory for a new DCT structure.
  *
  * Parameters:
- *      CVBlock *block:  A CVBlock structure to be freed.
+ *      None.
  *
- * Expects:
- *      The pointer and the block must not be NULL.
+ * Returns:
+ *      DCT: A newly allocated DCT structure.
  *
  * Notes:
  *      Will CRE if any expectation is violated.
- *      Frees the memory allocated for the ComponentVideo structures
- *      within the CVBlock.
- *      The pointer block will be set to NULL after freeing.
+ *      Client is responsible for freeing the returned DCT structure with
+ *      DCT_free.
  ************************/
-void FREECVBlock(CVBlock *block)
+DCT DCT_new()
 {
-        assert(block != NULL);
-        assert(*block != NULL);
+        DCT dct;
+        NEW(dct);
+        return dct;
+}
 
-        for (int i = 0; i < 4; i++)
-                FREE((*block)->cv[i]);
+/********** DCT_free ********
+ *
+ * Frees the memory allocated for a DCT structure.
+ *
+ * Parameters:
+ *      DCT *dct:  A pointer to a DCT structure to be freed.
+ *
+ * Expects:
+ *      dct must not be NULL.
+ *      *dct must not be NULL.
+ *
+ * Notes:
+ *      Will CRE if any expectation is violated.
+ *      The pointer *dct will be set to NULL after freeing.
+ ************************/
+void DCT_free(DCT *dct)
+{
+        assert(dct != NULL);
+        assert(*dct != NULL);
 
-        FREE(*block);
-        block = NULL;
+        FREE(*dct);
+        dct = NULL;
 }

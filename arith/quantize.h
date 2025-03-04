@@ -45,37 +45,69 @@ typedef struct Quantized
  * Quantizes the values of a DCT structure.
  *
  * Parameters:
- *      DCT dct:    A DCT structure containing the DCT values.
- *
- * Return:
- *      Quantized:  A Quantized structure containing the quantized values.
+ *      q:      A Quantized structure to store the quantized values.
+ *      dct:    A DCT structure containing the DCT values.
  *
  * Expects:
+ *      q must not be NULL.
  *      dct must not be NULL.
  *
  * Notes:
  *      Will CRE if any expectation is violated.
- *      Client is responsible for freeing the returned Quantized structure.
  ************************/
-Quantized quantize(DCT dct);
+void quantize(Quantized q,
+              DCT dct);
 
 /********** dequantize ********
  *
  * Dequantizes the values of a Quantized structure.
  *
  * Parameters:
- *      Quantized q:    A Quantized structure containing the quantized values.
- *
- * Return:
- *      DCT:            A DCT structure containing the DCT values.
+ *      dct:    A DCT structure to store the dequantized values.
+ *      q:      A Quantized structure containing the quantized values.
  *
  * Expects:
+ *      dct must not be NULL.
  *      q must not be NULL.
  *
  * Notes:
  *      Will CRE if any expectation is violated.
- *      Client is responsible for freeing the returned DCT structure.
  ************************/
-DCT dequantize(Quantized q);
+void dequantize(DCT dct,
+                Quantized q);
+
+/********** Quantized_new ********
+ *
+ * Allocates memory for a new Quantized structure.
+ *
+ * Parameters:
+ *      None.
+ *
+ * Returns:
+ *      Quantized: A newly allocated Quantized structure.
+ *
+ * Notes:
+ *      Will CRE if any expectation is violated.
+ *      Client is responsible for freeing the returned Quantized structure with
+ *      FREE.
+ ************************/
+Quantized Quantized_new();
+
+/********** Quantized_free ********
+ *
+ * Frees the memory allocated for a Quantized structure.
+ *
+ * Parameters:
+ *      Quantized *q:  A pointer to a Quantized structure to be freed.
+ *
+ * Expects:
+ *      q must not be NULL.
+ *      *q must not be NULL.
+ *
+ * Notes:
+ *      Will CRE if any expectation is violated.
+ *      The pointer *q will be set to NULL after freeing.
+ ************************/
+void Quantized_free(Quantized *q);
 
 #endif

@@ -16,24 +16,11 @@
 #define DCT_H
 
 #include <stdio.h>
-#include "rgb2cv.h"
-
-/********** CVBlock ********
- *
- * A 2x2 block of ComponentVideo structs.
- *
- * Elements:
- *      ComponentVideo cv[4]:   The array of ComponentVideo structs.
- *                              Each struct contains the Y, Pb, and Pr values.
- ***********************/
-typedef struct CVBlock
-{
-        ComponentVideo cv[4];
-} *CVBlock;
+#include "rgb2cav.h"
 
 /********** DCT ********
  *
- * A structure representing the Discrete Cosine Transform (DCT) of a CVBlock.
+ * A structure representing the Discrete Cosine Transform (DCT) of a CAV_block.
  *
  * Elements:
  *      float a:         The first DCT coefficient.
@@ -53,63 +40,81 @@ typedef struct DCT
         float Pbar_r;
 } *DCT;
 
-/********** ComputeDCT ********
+/********** computeDCT ********
  *
- * Computes the Discrete Cosine Transform (DCT) of a given CVBlock.
+ * Computes the Discrete Cosine Transform (DCT) of a given CAV_block.
+ * The DCT coefficients are stored in the DCT structure.
  *
  * Parameters:
- *      CVBlock block:  A CVBlock structure containing the
- *                      2x2 block of component video data.
- *
- * Return:
- *      DCT:            A computed DCT structure.
+ *      dct:    A DCT structure to store the computed DCT values.
+ *      block:  A CAV_block structure containing the 2x2 block of
+ *              component video data.
  *
  * Expects:
+ *      dct must not be NULL.
  *      block must not be NULL.
  *      The 2x2 block must be filled with valid ComponentVideo structs.
  *
  * Notes:
  *      Will CRE if any expectation is violated.
- *      Client is responsible for freeing the returned DCT structure.
  ************************/
-DCT ComputeDCT(CVBlock block);
+void computeDCT(DCT dct,
+                CAV_block block);
 
-/********** InvertDCT ********
+/********** invertDCT ********
  *
- * Inverts the Discrete Cosine Transform (DCT) to obtain the original CVBlock.
+ * Computes the inverse Discrete Cosine Transform (DCT) of a given DCT
+ * structure. The resulting component video data is stored in the
+ * CAV_block structure.
  *
  * Parameters:
- *      DCT dct:        A DCT structure containing the
- *                      a, b, c, d, Pbar_b, and Pbar_r values.
- *
- * Return:
- *      CVBlock:        The reconstructed CVBlock structure.
+ *      CAV_block block:  A CAV_block structure to store the computed component
+ *                      video data.
+ *      DCT dct:        A DCT structure containing the DCT coefficients.
  *
  * Expects:
- *      The pointer dct must not be NULL.
+ *      block must not be NULL.
+ *      dct must not be NULL.
  *
  * Notes:
  *      Will CRE if any expectation is violated.
- *      Client is responsible for freeing the returned CVBlock structure.
+ *      Client is responsible for freeing the returned CAV_block structure.
  ************************/
-CVBlock InvertDCT(DCT dct);
+void invertDCT(CAV_block block,
+               DCT dct);
 
-/**********FREECVBlock********
+/********** DCT_new ********
  *
- * Frees the memory allocated for a CVBlock.
+ * Allocates memory for a new DCT structure.
  *
  * Parameters:
- *      CVBlock *block:  A CVBlock structure to be freed.
+ *      None.
  *
- * Expects:
- *      The pointer and the block must not be NULL.
+ * Returns:
+ *      DCT: A newly allocated DCT structure.
  *
  * Notes:
  *      Will CRE if any expectation is violated.
- *      Frees the memory allocated for the ComponentVideo structures
- *      within the CVBlock.
- *      The pointer block will be set to NULL after freeing.
+ *      Client is responsible for freeing the returned DCT structure with
+ *      DCT_free.
  ************************/
-void FREECVBlock(CVBlock *block);
+DCT DCT_new();
+
+/********** DCT_free ********
+ *
+ * Frees the memory allocated for a DCT structure.
+ *
+ * Parameters:
+ *      DCT *dct:  A pointer to a DCT structure to be freed.
+ *
+ * Expects:
+ *      dct must not be NULL.
+ *      *dct must not be NULL.
+ *
+ * Notes:
+ *      Will CRE if any expectation is violated.
+ *      The pointer *dct will be set to NULL after freeing.
+ ************************/
+void DCT_free(DCT *dct);
 
 #endif
