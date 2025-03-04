@@ -45,13 +45,11 @@ void compress40(FILE *input)
         {
                 for (size_t row = 0; row < image->height / 2; row++)
                 {
-                        for (size_t i = 0; i < 2; i++)
+                        for (size_t k = 0; k < 4; k++)
                         {
-                                for (size_t j = 0; j < 2; j++)
-                                {
-                                        Pnm_rgb rgb = image->methods->at(image->pixels, col * 2 + i, row * 2 + j);
-                                        rgb_block->rgb[i + j * 2] = rgb;
-                                }
+                                size_t i = k % 2, j = k / 2;
+                                Pnm_rgb rgb = image->methods->at(image->pixels, col * 2 + i, row * 2 + j);
+                                rgb_block->rgb[k] = rgb;
                         }
 
                         /* Process the block */
